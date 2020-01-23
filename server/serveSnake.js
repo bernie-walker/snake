@@ -1,4 +1,5 @@
 const { Server } = require('net');
+const { Response } = require('./response');
 const { readFileSync, existsSync } = require('fs');
 
 const getFileDetails = function(requiredResource) {
@@ -66,30 +67,10 @@ const handleRequest = function(socket) {
 
 const main = function() {
   const server = new Server();
+  const response = new Response(new Date());
 
   server.on('connection', socket => {
-    const message = {
-      response: 'HTTP/1.0 200 OK',
-      header: {
-        'content-Length': 0,
-        Date: new Date()
-      },
-      body: ['', ''],
-      getMessage: function() {
-        const head = JSON.stringify(this.header)
-          .slice(1, -1)
-          .split(',')
-          .map(headline => headline.replace(/"/g, ''));
-
-        return [this.response]
-          .concat(head)
-          .concat(this.body)
-          .join('\r\n');
-      }
-    };
-
-    console.log(message.getMessage().split('\n'));
-    socket.write(message.getMessage());
+    socket.write(response.getMessage());
   });
 
   server.listen(4569, () => {
