@@ -1,0 +1,71 @@
+h1 {
+  text-align: center;
+}
+
+#finish-prompt {
+  padding: 3px;
+  width: 35%;
+  height: 100px;
+  margin: auto;
+  position: fixed;
+  top: 40%;
+  left: 32%;
+}
+
+.finish-message {
+  width: 50%;
+  margin: 5px auto;
+  text-align: center;
+}
+
+#game-summary {
+  width: 80%;
+  height: 20%;
+  margin: auto;
+  text-align: center;
+  font-size: 1.7vw;
+}
+
+#continue-button {
+  width: 15%;
+  margin-left: 42%;
+  margin-top: 5px;
+  font-size: 1vw;
+}
+
+#grid {
+  width: 800px;
+  display: flex;
+  margin: 1% auto;
+  flex-wrap: wrap;
+  border: 1px solid black;
+}
+
+#scores {
+  width: 10%;
+  padding: 2px;
+  border: 1px solid;
+  margin: 1% auto;
+  text-align: center;
+}
+
+.hide {
+  display: none;
+}
+
+.cell {
+  width: 8px;
+  height: 8px;
+}
+
+.snake {
+  background-color: black;
+}
+
+.ghost {
+  background-color: gray;
+}
+
+.regular {
+  background-color: #f00;
+}
