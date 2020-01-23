@@ -1,15 +1,25 @@
+const statusCodeLookup = { 200: 'OK', 404: 'Not Found' };
+
 class Response {
   constructor(date) {
-    this.response = 'HTTP/1.0 200 OK';
+    this.response = 'HTTP/1.0 ';
     this.header = {
-      'content-Length': 0,
+      'Content-Length': 0,
       Date: date
     };
-    this.body = ['', ''];
+    this.body = '';
+  }
+
+  updateResponse(code) {
+    this.response = `${this.response} ${code} ${statusCodeLookup[code]}`;
+  }
+
+  updateHeader(key, value) {
+    this.header[key] = value;
   }
 
   addBody(content) {
-    this.body.splice(0, 1, content);
+    this.body = content;
   }
 
   getMessage() {
@@ -18,10 +28,12 @@ class Response {
       .split(',')
       .map(headline => headline.replace(/"/g, ''));
 
-    return [this.response]
-      .concat(head)
-      .concat(this.body)
-      .join('\r\n');
+    return (
+      [this.response]
+        .concat(head)
+        .concat(['', this.body])
+        .join('\r\n') + '\n'
+    );
   }
 }
 

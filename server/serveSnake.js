@@ -1,20 +1,27 @@
 const { Server } = require('net');
 const { Response } = require('./response');
-const { readFileSync, existsSync } = require('fs');
+const { readFileSync } = require('fs');
 
-const getFileDetails = function(requiredResource) {
+const getFileDetails = function(requiredResource, response) {
   const pubPath = `${__dirname.match(/.*\//)[0]}public`;
-
   const fileName = requiredResource === '/' ? '/index.html' : requiredResource;
+  let content, code, length;
 
-  if (existsSync(`${pubPath}${fileName}`)) {
-    return {
-      content: readFileSync(`${pubPath}${fileName}`, 'utf8'),
-      code: '200 OK'
-    };
+  try {
+    content = readFileSync(`${pubPath}/${fileName}`, 'utf8');
+    code = 200;
+    length = content.length;
+  } catch (e) {
+    content = '';
+    code = 404;
+    length = 0;
   }
 
-  return { content: '', code: '404 Not Found' };
+  response.addBody(content);
+  response.updateResponse(code);
+  response.updateHeader('Content-Length', length + 1);
+
+  return response.getMessage();
 };
 
 const parseHeaders = function(headersAndBody) {
@@ -29,28 +36,14 @@ const getResponse = function(requestContent) {
   const [request, ...requestHeadersAndBody] = requestContent.split('\r\n');
   const [command, resource] = request.split(' ');
   const headers = parseHeaders(requestHeadersAndBody);
-  const date = new Date();
-  let response = 'HTTP/1.0 422 Unprocessable Entity';
-  3;
-  let responseContent = '';
+  const response = new Response(new Date());
+  let responseMessage;
 
   if (command === 'GET') {
-    const { content, code } = getFileDetails(resource);
-    responseContent = content;
-    response = `HTTP/1.0 ${code}`;
+    responseMessage = getFileDetails(resource, response);
   }
 
-  const body = (responseContent.length && [responseContent, '']) || [''];
-
-  return [
-    response,
-    `Date: ${date.toUTCString()}`,
-    'Server: SimpleHTTP/0.6',
-    `Content-Length: ${responseContent.length}`,
-    ''
-  ]
-    .concat(body)
-    .join('\r\n');
+  return responseMessage;
 };
 
 const handleRequest = function(socket) {
@@ -67,11 +60,8 @@ const handleRequest = function(socket) {
 
 const main = function() {
   const server = new Server();
-  const response = new Response(new Date());
 
-  server.on('connection', socket => {
-    socket.write(response.getMessage());
-  });
+  server.on('connection', handleRequest);
 
   server.listen(4569, () => {
     console.log('server started', server.address());
