@@ -1,0 +1,23 @@
+{
+  "name": "snake",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "nodemon server/serveSnake.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bernie-walker/snake.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bernie-walker/snake/issues"
+  },
+  "homepage": "https://github.com/bernie-walker/snake#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}
