@@ -41,16 +41,12 @@ class Response {
   }
 }
 
-const parseHeaders = function(headersAndBody) {
-  const [head, body] = headersAndBody.split('\r\n\r\n');
-
-  const headers = head.reduce((container, element) => {
+const parseHeaders = function(headers) {
+  return headers.reduce((container, element) => {
     const [key, value] = element.split(': ');
     container[key] = value;
     return container;
   }, {});
-
-  return { headers, body };
 };
 
 class Request {
@@ -66,13 +62,23 @@ class Request {
     this.#body = body;
   }
 
+  get command() {
+    return this.#command;
+  }
+
+  get resource() {
+    return this.#resource;
+  }
+
   static from(userRequest) {
-    const [requestLine, ...headersAndBody] = userRequest.split('\r\n');
+    const [top, body] = userRequest.split('\r\n\r\n');
+    const head = top.split('\r\n');
+    const requestLine = head[0];
     const [command, resource] = requestLine.split(' ');
-    const { headers, body } = parseHeadAndBody(headersAndBody);
+    const headers = parseHeaders(head.slice(1));
 
     return new Request(command, resource, headers, body);
   }
 }
 
-module.exports = { Response };
+module.exports = { Response, Request };

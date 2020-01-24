@@ -1,5 +1,5 @@
 const { Server } = require('net');
-const { Response } = require('./response');
+const { Response, Request } = require('./response');
 const { readFileSync } = require('fs');
 
 const getFileDetails = function(resource, response) {
@@ -24,23 +24,13 @@ const getFileDetails = function(resource, response) {
   return response.getMessage();
 };
 
-const parseHeaders = function(headersAndBody) {
-  return headersAndBody.reduce((container, element) => {
-    const [key, value] = element.split(': ');
-    container[key] = value;
-    return container;
-  }, {});
-};
-
 const getResponse = function(userRequest) {
-  const [request, ...requestHeadersAndBody] = userRequest.split('\r\n');
-  const [command, resource] = request.split(' ');
-  const headers = parseHeaders(requestHeadersAndBody);
+  const request = Request.from(userRequest);
   const response = new Response(new Date());
   let responseMessage;
 
-  if (command === 'GET' || command === 'POST') {
-    responseMessage = getFileDetails(resource, response);
+  if (request.command === 'GET') {
+    responseMessage = getFileDetails(request.resource, response);
   }
 
   return responseMessage;
