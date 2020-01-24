@@ -2,9 +2,9 @@ const { Server } = require('net');
 const { Response } = require('./response');
 const { readFileSync } = require('fs');
 
-const getFileDetails = function(requiredResource, response) {
+const getFileDetails = function(resource, response) {
   const pubPath = `${__dirname.match(/.*\//)[0]}public`;
-  const fileName = requiredResource === '/' ? '/index.html' : requiredResource;
+  const fileName = resource === '/' ? '/index.html' : resource;
   let content, code, length;
 
   try {
@@ -32,8 +32,8 @@ const parseHeaders = function(headersAndBody) {
   }, {});
 };
 
-const getResponse = function(requestContent) {
-  const [request, ...requestHeadersAndBody] = requestContent.split('\r\n');
+const getResponse = function(userRequest) {
+  const [request, ...requestHeadersAndBody] = userRequest.split('\r\n');
   const [command, resource] = request.split(' ');
   const headers = parseHeaders(requestHeadersAndBody);
   const response = new Response(new Date());
