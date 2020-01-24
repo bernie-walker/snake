@@ -39,7 +39,7 @@ const getResponse = function(userRequest) {
   const response = new Response(new Date());
   let responseMessage;
 
-  if (command === 'GET') {
+  if (command === 'GET' || command === 'POST') {
     responseMessage = getFileDetails(resource, response);
   }
 
