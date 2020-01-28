@@ -1,61 +1,49 @@
-const { Server } = require('net');
-const { Response, Request } = require('./response');
+const { Server } = require('http');
 const { readFileSync } = require('fs');
+const CONT_TYPE = {
+  txt: 'text/plain',
+  html: 'text/html',
+  css: 'text/css',
+  js: 'application/javascript',
+  json: 'application/json',
+  gif: 'image/gif',
+  pdf: 'application/pdf',
+  jpg: 'image/jpg'
+};
 
 const getFileDetails = function(resource, response) {
   const pubPath = `${__dirname.match(/.*\//)[0]}public`;
   const fileName = resource === '/' ? '/index.html' : resource;
-  let content, code, length;
+  let content;
 
   try {
-    content = readFileSync(`${pubPath}/${fileName}`, 'utf8');
-    code = 200;
-    length = content.length;
+    content = readFileSync(`${pubPath}/${fileName}`);
+    const ext = fileName.match(/.*\.(.*)$/)[1];
+    response.setHeader('Content-Type', CONT_TYPE[ext]);
   } catch (e) {
-    content = '';
-    code = 404;
-    length = 0;
+    response.writeHead(404);
+    response.end();
+    return;
   }
 
-  response.addBody(content);
-  response.updateResponse(code);
-  response.updateHeader('Content-Length', length + 1);
-
-  return response.getMessage();
-};
-
-const getResponse = function(userRequest) {
-  const request = Request.from(userRequest);
-  const response = new Response(new Date());
-  let responseMessage;
-
-  if (request.command === 'GET') {
-    responseMessage = getFileDetails(request.resource, response);
-  }
-
-  return responseMessage;
-};
-
-const handleRequest = function(socket) {
-  console.log(`connected to ${socket.remoteAddress} at ${socket.remotePort}`);
-
-  socket.setEncoding('utf8');
-
-  socket.on('data', text => {
-    socket.write(getResponse(text));
-  });
-
-  socket.on('error', error => console.log(error));
-
-  socket.on('close', () => console.log('socket closed'));
+  response.end(content, 'utf8');
 };
 
 const main = function() {
-  const server = new Server();
+  const server = new Server((request, response) => {
+    const { socket } = request;
+    console.log(`connected to ${socket.remoteAddress} at ${socket.remotePort}`);
 
-  server.on('connection', handleRequest);
+    if (request.method === 'GET') {
+      responseMessage = getFileDetails(request.url, response);
+      return;
+    }
 
-  server.listen(4569, () => {
+    response.writeHead(422);
+    response.end();
+  });
+
+  server.listen(3000, () => {
     console.log('server started', server.address());
   });
 };
