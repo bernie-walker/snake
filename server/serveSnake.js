@@ -45,6 +45,8 @@ const handleRequest = function(socket) {
     socket.write(getResponse(text));
   });
 
+  socket.on('error', error => console.log(error));
+
   socket.on('close', () => console.log('socket closed'));
 };
 
